@@ -1,0 +1,18 @@
+                                        method          param
+http://localhost:3000/                  GET
+http://localhost:3000/login             GET/POST
+http://localhost:3000/register          GET/POST        username,password
+http://localhost:3000/logout            GET
+
+
+http://localhost:3000/user              GET
+http://localhost:3000/user/:username    GET             username
+
+
+http://localhost:3000/problem           GET
+http://localhost:3000/problem/:title    GET             title
+http://localhost:3000/problem/create    POST            title,statement,serverInput,serverOutput,sampleInput,sampleOutput
+
+http://localhost:3000/answer            GET
+http://localhost:3000/answer/:id        GET
+http://localhost:3000/answer/create     POST
