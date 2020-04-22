@@ -11,19 +11,23 @@ mongoose.connect('mongodb+srv://16020973:16020973@uetcodejudge-an2qi.mongodb.net
     useUnifiedTopology: true 
 });
 
-var db = mongoose.connection;
-
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function () {
-    // we're connected!
-});
+// CONNECTION EVENTS
+mongoose.connection.on("connected", function() {
+    console.log("Mongoose connected");
+  });
+  mongoose.connection.on("error", function(err) {
+    console.log("Mongoose connection error: " + err);
+  });
+  mongoose.connection.on("disconnected", function() {
+    console.log("Mongoose disconnected");
+  });
 
 app.use(session({
     secret: 'CodeJudge',
     resave: true,
     saveUninitialized: false,
     store: new MongoStore({
-        mongooseConnection: db
+        mongooseConnection: mongoose.connection
     })
 }));
 // parse incoming requests
@@ -48,6 +52,9 @@ app.use('/problem', problemRouter);
 
 var answerRouter = require('./routes/answer-router');
 app.use('/answer', answerRouter);
+
+var submitRouter = require('./routes/submit-routers');
+app.use('/submit', submitRouter);
 
 var authRouter = require('./routes/auth-routes');
 app.use('/', authRouter);

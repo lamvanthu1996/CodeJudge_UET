@@ -1,5 +1,10 @@
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt');
+var jwt = require('jsonwebtoken');
+
+var config = require('../config.json');
+var secret = config.secret;
+var salt = config.salt;
 
 var UserSchema = new mongoose.Schema({
     username: {
@@ -10,12 +15,27 @@ var UserSchema = new mongoose.Schema({
     },
     password: String,
     email: String,
+    role: {
+        type: String,
+        enum: ["admin", "regular"],
+        default: "regular"
+    },
     solved: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: "problem"
         }
-    ]
+    ],
+    answers: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "answer"
+        }
+    ],
+    timecreated: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 //hashing a password before saving it to the database
@@ -55,11 +75,29 @@ UserSchema.statics = {
 }
 
 UserSchema.methods.comparePassword = function (candidatePassword, cb) {
-    bcrypt.compare(candidatePassword, this.password, function (err, isMatch) {
+    bcrypt.compare(candidatePassword, this.password, function (err, result) {
         if (err) return cb(err);
-        cb(null, isMatch);
+        cb(null, result);
     });
 }
+
+UserSchema.methods.generateJWT = function () {
+    return jwt.sign({
+        id: this._id,
+        username: this.username
+    }, secret, {
+        expiresIn: 86400 * 7 // expires in 24 hours
+    });
+};
+
+UserSchema.methods.toAuthJSON = function () {
+    return {
+        username: this.username,
+        email: this.email,
+        role: this.role,
+        token: this.generateJWT()
+    };
+};
 
 var User = mongoose.model('User', UserSchema);
 module.exports = User;

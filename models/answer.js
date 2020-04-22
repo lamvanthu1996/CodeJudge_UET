@@ -1,12 +1,25 @@
 var mongoose = require('mongoose');
 
 var AnswerSchema = new mongoose.Schema({
-    userID: String,
-    problemID: String,
+    user:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user"
+    },problem:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "problem"
+    },
     lang: String,
     sourceCode: String,
     error: String,
-    userOutput: String
+    userOutput: String,
+    point: {
+        type: Number,
+        default: 0
+    },
+    timecreated: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 AnswerSchema.statics = {

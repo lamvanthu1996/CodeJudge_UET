@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "start.dev": "nodemon"
   },
   "author": "",
   "license": "ISC",
@@ -16,11 +17,17 @@
     "cors": "^2.8.5",
     "ejs": "^3.0.1",
     "express": "^4.17.1",
+    "express-brute": "^1.0.1",
     "express-session": "^1.17.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.6",
-    "nodemon": "^2.0.2",
     "passport": "^0.4.1",
     "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.4"
+  },
+  "engines": {
+    "node": "13.x"
   }
 }

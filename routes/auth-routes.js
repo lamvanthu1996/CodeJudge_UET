@@ -2,10 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var User = require('../models/user');
-var jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
-var bcrypt = require('bcrypt');
 
-var secret = 'code-judge';
 // GET route for reading data
 router.get('/', function (req, res, next) {
    res.render('home');
@@ -19,31 +16,27 @@ router.get('/login', function (req, res) {
 
 
 router.post('/login', function (req, res) {
-
    User.findOne({ username: req.body.username }, function (err, user) {
       if (err) { return res.status(500).send('Error on the server.'); }
       if (!user) { return res.status(404).send('No user found.'); }
 
-      user.comparePassword(req.body.password, function (err, isMatch) {
-         if (err) {
-            return res.status(500).send('Error on the server.');
-         }
-         if (!isMatch) {
+      user.comparePassword(req.body.password, function (err, result) {
+         if (err) { return res.status(500).send('Error on the server.'); }
+
+         if (!result) {
             return res.status(401).send({ auth: false, token: null });
          }
          // create a token
-         var token = jwt.sign({ id: user._id }, secret, {
-            expiresIn: 86400 // expires in 24 hours
-         });
+         var token = user.generateJWT();
 
-         if (user.username === 'admin') {
-            res.redirect('admin');
+         if (req.body.remember == true) {
+            res.cookie("cookieToken", token, { maxAge: 900000 }); //expires after 900000 ms = 15 minutes
          }
-         else {
-            res.redirect('user/' + user.username);
-         }    
-         // return the information including token as JSON
-         //res.status(200).send({ auth: true, token: token });
+         res.status(200)
+            .json({
+               auth: true,
+               token: token
+            });
       });
    });
 });
@@ -68,15 +61,12 @@ router.post('/register', function (req, res) {
 
    User.create(user, function (err, newUser) {
 
-      if (err) return res.status(500).send('There was a problem registering the user`.');
-
-      // if user is registered without errors
+      if (err) return res.status(500).send('There was a problem registering the user.');
+      
       // create a token
-      var token = jwt.sign({ "id": newUser._id }, secret, {
-         expiresIn: 86400 // expires in 24 hours
-      });
+      var token = newUser.generateJWT();
 
-      res.status(200).send({ auth: true, token: token });
+      res.status(200).json({ auth: true, token: token });
    });
 
 });

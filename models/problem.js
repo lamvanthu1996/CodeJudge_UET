@@ -10,7 +10,11 @@ var ProblemSchema = new mongoose.Schema({
     serverInput: String,
     serverOutput: String,
     sampleInput: String,
-    sampleOutput: String
+    sampleOutput: String,
+    timecreated: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 ProblemSchema.statics = {

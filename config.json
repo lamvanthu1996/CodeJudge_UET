@@ -1,0 +1,10 @@
+{
+    "dev": {
+        "port": 3000
+    },
+    "production": {
+        "port": 8080
+    },
+    "secret":"code-judge",
+    "salt":10
+}
