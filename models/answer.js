@@ -11,7 +11,7 @@ var AnswerSchema = new mongoose.Schema({
     lang: String,
     sourceCode: String,
     error: String,
-    userOutput: String,
+    output: String,
     point: {
         type: Number,
         default: 0
