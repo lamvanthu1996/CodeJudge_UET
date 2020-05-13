@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var exec = require('child_process').exec;
+var child_process = require('child_process');
 var fs = require('fs-extra');
 
 var User = require('../models/user');
@@ -38,70 +38,87 @@ router.post('/', bruteforce.prevent, function (req, res) {
             var folder = path + 'temp/' + random(10);
             fs.mkdirSync(folder);
 
-            var userInput = req.body.stdin;
-            var inputFile = `${folder}/input.txt`;
-            fs.writeFileSync(inputFile, userInput);
+            var result = [];
+            var point = 0;
 
-            switch (language) {
-                case 'java':
-                    var mainFile = `${folder}/Main.java`;
-                    fs.writeFileSync(mainFile, code);
-                    var command = `docker run --rm -v ${folder}:${folder} codejudgeuet_java javac ${mainFile} ${folder}/output ${folder}/input.txt`;
-                    break;
-                case 'js':
-                    var mainFile = `${folder}/main.js`;
-                    fs.writeFileSync(mainFile, code);
-                    var command = `docker run --rm -v ${folder}:${folder} codejudgeuet_js node ${mainFile} ${folder}/output ${folder}/input.txt`;
-                    break;
-                case 'php':
-                    var mainFile = `${folder}/main.php`;
-                    fs.writeFileSync(mainFile, code);
-                    var command = `docker run --rm -v ${folder}:${folder} codejudgeuet_php php ${mainFile} ${folder}/output ${folder}/input.txt`;
-                    break;
-                case 'python':
-                    var mainFile = `${folder}/main.py`;
-                    fs.writeFileSync(mainFile, code);
-                    var command = `docker run --rm -v ${folder}:${folder} codejudgeuet_python python ${mainFile} ${folder}/output ${folder}/input.txt`;
-                    break;
-                default:
-                    res.json({
-                        stdout: "",
-                        error: "language not support",
-                    });
-                    return;
+            for(var i=0;i<10;i++){
+                point += 10;
+                result.push('Success');
             }
 
-            exec(command, (error, exec_time, stderr) => {
-                var stdout = fs.readFileSync(`${folder}/output`, 'utf8');
+            fs.remove(folder, (err) => { });
 
-                var answer = {
-                    user: user._id,
-                    problem: problem._id,
-                    lang: language,
-                    sourceCode: code,
-                    error: stderr,
-                    output: stdout
-                };
-                Answer.create(answer, function (err, answer) {
-                    if (err) {
-                        res.json({
-                            error: err
-                        })
-                        return;
-                    }
+            // for (var i = 0; i < problem.serverInput.length; i++) {
+            //     var inputFile = `${folder}/input.txt`;
+            //     fs.writeFileSync(inputFile, problem.serverInput[i]);
 
-                    fs.remove(folder, (err) => { });
+            //     switch (language) {
+            //         case 'java':
+            //             var mainFile = `${folder}/Main.java`;
+            //             fs.writeFileSync(mainFile, code);
+            //             var command = `docker run --rm -v ${folder}:${folder} codejudgeuet_java javac ${mainFile} ${folder}/output ${folder}/input.txt`;
+            //             break;
+            //         case 'js':
+            //             var mainFile = `${folder}/main.js`;
+            //             fs.writeFileSync(mainFile, code);
+            //             var command = `docker run --rm -v ${folder}:${folder} codejudgeuet_js node ${mainFile} ${folder}/output ${folder}/input.txt`;
+            //             break;
+            //         case 'php':
+            //             var mainFile = `${folder}/main.php`;
+            //             fs.writeFileSync(mainFile, code);
+            //             var command = `docker run --rm -v ${folder}:${folder} codejudgeuet_php php ${mainFile} ${folder}/output ${folder}/input.txt`;
+            //             break;
+            //         case 'python':
+            //             var mainFile = `${folder}/main.py`;
+            //             fs.writeFileSync(mainFile, code);
+            //             var command = `docker run --rm -v ${folder}:${folder} codejudgeuet_python python ${mainFile} ${folder}/output ${folder}/input.txt`;
+            //             break;
+            //         default:
+            //             res.json({
+            //                 stdout: "",
+            //                 error: "language not support",
+            //             });
+            //             return;
+            //     }
 
+            //     var exce = child_process.execSync(command);
+            //     var stdout = fs.readFileSync(`${folder}/output`, 'utf8');
+            //     stdout = stdout.replace(/\n$/, '');
+
+            //     if (stdout === problem.serverOutput[i]) {
+            //         point += 10;
+            //         result.push('Success');
+            //     } else {
+            //         result.push('Failure');
+            //     }
+            //     fs.remove(folder, (err) => { });
+
+            // }
+
+            var answer = {
+                user: user._id,
+                problem: problem._id,
+                lang: language,
+                sourceCode: code,
+                result: result,
+                point: point
+            };
+            Answer.create(answer, function (err, answer) {
+                if (err) {
                     res.json({
-                        stdout: stdout,
-                        error: stderr,
-                        time: exec_time
-                    });
+                        error: err
+                    })
+                    return;
+                }
 
-                    user.solved.addToSet(problem._id);
-                    user.answers.addToSet(answer._id);
-                    user.save();
+                res.json({
+                    result: answer.result,
+                    point: answer.point
                 });
+
+                user.solved.addToSet(problem._id);
+                user.answers.addToSet(answer._id);
+                user.save();
             });
         });
     });

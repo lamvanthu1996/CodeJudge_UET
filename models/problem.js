@@ -7,8 +7,8 @@ var ProblemSchema = new mongoose.Schema({
         required: true,
     },
     statement: String,
-    serverInput: String,
-    serverOutput: String,
+    serverInput: [String],
+    serverOutput: [String],
     sampleInput: String,
     sampleOutput: String,
     timecreated: {

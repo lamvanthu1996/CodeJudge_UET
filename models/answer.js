@@ -10,8 +10,7 @@ var AnswerSchema = new mongoose.Schema({
     },
     lang: String,
     sourceCode: String,
-    error: String,
-    output: String,
+    result: [String],
     point: {
         type: Number,
         default: 0

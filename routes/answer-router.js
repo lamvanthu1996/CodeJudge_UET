@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var Answer = require('../models/answer');
-
+var Problem = require('../models/problem');
 
 router.post('/create', function (req, res, next) {
     var answer = {
@@ -76,6 +76,41 @@ router.delete('/remove/:id', function (req, res, next) {
 });
 
 router.get('/', function (req, res, next) {
+    if (req.query.problem) {
+        Problem.findOne({ title: req.query.problem }, function (err, problem) {
+            if (err) {
+                res.json({
+                    "error": err
+                })
+                return;
+            }
+
+            if (!problem) {
+                res.json({
+                    "error": "Problem with title " + req.query.problem + " don't exist"
+                })
+                return;
+            }
+
+            //var skip = req.query.page ? (req.query.page - 1) * 5 : 0;
+        
+            Answer.find(
+                { problem: problem._id },
+                //{ skip: 0, limit: 5 },
+                function (err, answers) {
+                    if (err) {
+                        res.json({
+                            "error": err
+                        })
+                        return;
+                    }
+                    res.json({
+                        'answers': answers
+                    });
+                });
+        });
+        return;
+    }
     Answer.get({}, function (err, answers) {
         if (err) {
             res.json({
@@ -84,8 +119,8 @@ router.get('/', function (req, res, next) {
         }
         res.json({
             'answers': answers
-        })
-    })
+        });
+    });
 });
 
 module.exports = router;

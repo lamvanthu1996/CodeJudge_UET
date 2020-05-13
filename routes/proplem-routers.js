@@ -77,6 +77,26 @@ router.delete('/remove/:id', function (req, res, next) {
 });
 
 router.get('/', function (req, res, next) {
+    if (req.query.page) {
+        var skip = req.query.page ? (req.query.page - 1) * 5 : 0;
+        Problem.find({},
+            {
+
+            },
+            function (err, problems) {
+                if (err) {
+                    res.json({
+                        "error": err
+                    })
+                    return;
+                }
+                res.json({
+                    'problems': problems
+                });
+            });
+
+        return;
+    }
     Problem.get({}, function (err, problems) {
         if (err) {
             res.json({
