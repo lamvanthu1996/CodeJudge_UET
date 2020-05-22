@@ -1,19 +1,36 @@
+var jwt = require('jsonwebtoken');
+var config = require('../config.json');
 
 var middleware = {};
 
-middleware.isLoggedIn = function isLoggedIn(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next();
+middleware.isLoggedIn = function (req, res, next) {
+
+    if (req.headers && req.headers.authorization) {
+        jwt.verify(req.headers.authorization, config.secret, function (err, decode) {
+            if (err) { req.user = undefined; }
+            req.user = decode;
+            next();
+        });
+
+    } else {
+        res.redirect('login');
     }
-    res.redirect('login');
 }
 
 middleware.isAdmin = function isAdmin(req, res, next) {
-
-    if (req.body.username == "admin") {
-        return next();
+    if (req.headers && req.headers.authorization) {
+        jwt.verify(req.headers.authorization, config.secret, function (err, decode) {
+            if (err) { req.user = undefined; }
+            if (decode.role == 'admin') {
+                req.user = decode;
+                next();
+            } else {
+                res.redirect('login');
+            }
+        });
+    } else {
+        res.redirect('login');
     }
-    res.redirect('home');
 }
 
 module.exports = middleware

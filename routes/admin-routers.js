@@ -3,7 +3,9 @@ var router = express.Router();
 var User = require('../models/user');
 var Problem = require('../models/problem');
 var Answer = require('../models/answer');
+var middkeware = require('../middleware/index');
 
+router.use(middkeware.isAdmin);
 
 router.get('/user', function (req, res, next) {
     User.get({}, function (err, users) {

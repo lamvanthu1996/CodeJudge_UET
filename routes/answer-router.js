@@ -93,34 +93,39 @@ router.get('/', function (req, res, next) {
             }
 
             //var skip = req.query.page ? (req.query.page - 1) * 5 : 0;
-        
-            Answer.find(
-                { problem: problem._id },
-                //{ skip: 0, limit: 5 },
-                function (err, answers) {
-                    if (err) {
+
+            Answer.find({ problem: problem._id })
+                .sort({ 'timecreated': -1 })
+                .limit(10)
+                .exec(
+                    function (err, answers) {
+                        if (err) {
+                            res.json({
+                                "error": err
+                            })
+                            return;
+                        }
                         res.json({
-                            "error": err
-                        })
-                        return;
-                    }
-                    res.json({
-                        'answers': answers
+                            'answers': answers
+                        });
                     });
-                });
         });
         return;
     }
-    Answer.get({}, function (err, answers) {
-        if (err) {
+    Answer.find({})
+        .sort({ 'timecreated': -1 })
+        .limit(10)
+        .exec(function (err, answers) {
+            if (err) {
+                res.json({
+                    "error": err
+                });
+                return;
+            }
             res.json({
-                "error": err
-            })
-        }
-        res.json({
-            'answers': answers
+                'answers': answers
+            });
         });
-    });
 });
 
 module.exports = router;

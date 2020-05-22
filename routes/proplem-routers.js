@@ -79,11 +79,11 @@ router.delete('/remove/:id', function (req, res, next) {
 router.get('/', function (req, res, next) {
     if (req.query.page) {
         var skip = req.query.page ? (req.query.page - 1) * 5 : 0;
-        Problem.find({},
-            {
-
-            },
-            function (err, problems) {
+        Problem.find({})
+            .sort({'title': -1})
+            .skip(skip)
+            .limit(50)
+            .exec(function (err, problems) {
                 if (err) {
                     res.json({
                         "error": err

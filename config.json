@@ -5,6 +5,7 @@
     "production": {
         "port": 8080
     },
-    "secret":"code-judge",
-    "salt":10
+    "secret": "code-judge",
+    "salt": 10,
+    "page_limit": 5
 }

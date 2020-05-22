@@ -84,7 +84,8 @@ UserSchema.methods.comparePassword = function (candidatePassword, cb) {
 UserSchema.methods.generateJWT = function () {
     return jwt.sign({
         id: this._id,
-        username: this.username
+        username: this.username,
+        role: this.role,
     }, secret, {
         expiresIn: 86400 * 7 // expires in 24 hours
     });
